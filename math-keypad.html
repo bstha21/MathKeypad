@@ -124,7 +124,7 @@
 
         .preview-container img {
             max-width: 100%;
-            height: auto;
+            height: 200px;
             margin: 10px;
             border-radius: 5px;
         }
@@ -353,20 +353,20 @@
             const outputSection = document.getElementById('outputSection');
             const API_URL = "https://chatbot.chimpvine.com/solve_text";
 
-            // Handle file selection
+            // Handle Image file selection
 
             fileInput.addEventListener('change', handleFiles);
             dropArea.addEventListener('dragover', handleDragOver);
             dropArea.addEventListener('drop', handleDrop);
 
-            // Handle drag over event
+            // Handle Image over event
             function handleDragOver(event) {
                 event.preventDefault();
                 event.stopPropagation();
                 dropArea.classList.add('drag-over');
             }
 
-            // Handle drop event
+            // Handle Image drop event
             function handleDrop(event) {
                 event.preventDefault();
                 event.stopPropagation();
@@ -375,7 +375,7 @@
                 handleFiles({ target: { files } });
             }
 
-            // Handle file input change
+            // Handle Image file input change
             function handleFiles(event) {
                 const files = event.target.files;
                 previewContainer.innerHTML = '';
@@ -471,12 +471,18 @@
             });
 
             /* for generate api calls (res)*/
-
             solveButton.addEventListener('click', () => {
                 const equation = input.value;
+                if (!equation) {
+                    alert("Please enter a basic equation.");
+                    return;
+                }
                 console.log("Equation:", equation);
                 outputSection.innerHTML = "<p>Processing...</p>";
                 outputSection.classList.remove('hidden');
+                // Disable the button and input field while processing
+                solveButton.disabled = true;
+                input.disabled = true;
                 generateURLResponse(equation)
                     .then(data => {
                         console.log("API response:", data);
@@ -489,8 +495,17 @@
                     .catch(error => {
                         console.error("Error:", error);
                         outputSection.innerHTML = `<p>Error: ${error.message}</p>`;
+                    })
+                    .finally(() => {
+                        // Re-enable the button and input field after processing
+                        solveButton.disabled = false;
+                        input.disabled = false;
+                        // Clear the input field
+                        input.value = '';
                     });
             });
+
+
 
             function generateURLResponse(equation) {
                 const requestOptions = {
@@ -561,6 +576,12 @@
 
             plotSolveButton.addEventListener('click', () => {
                 const equation = plotInput.value;
+                if (!equation) {
+                    alert("Please enter an equation to plot.");
+                    return;
+                }
+                plotInput.disabled = true;
+                plotSolveButton.disabled = true;
                 console.log("Equation to plot:", equation);
                 plotOutputSection.innerHTML = "<p>Processing...</p>";
                 plotOutputSection.classList.remove('hidden');
@@ -572,6 +593,11 @@
                     .catch(error => {
                         console.error("Error:", error);
                         plotOutputSection.innerHTML = `<p>Error: ${error.message}</p>`;
+                    })
+                    .finally(() => {
+                        plotInput.disabled = false;
+                        plotSolveButton.disabled = false;
+                        plotInput.value = '';
                     });
             });
 
@@ -592,6 +618,8 @@
                     });
             };
             /*End of plot Equation response*/
+
+            /*Url link response*/
 
             async function processURL(url) {
                 const requestOptions = {
@@ -629,6 +657,7 @@
                 urlOutputSection.classList.remove('hidden');
 
                 // Disable the button during processing
+                urlInput.disabled = true;
                 urlButton.disabled = true;
 
                 try {
@@ -640,12 +669,14 @@
                 } finally {
                     // Enable the button after processing
                     urlButton.disabled = false;
+                    urlInput.disabled = false;
                     // Clear the input field after processing
                     urlInput.value = '';
                 }
             });
             /*end of url link response*/
 
+            /* Image Upload Response*/
             // Event listener for the upload button
             document.getElementById('solve-image').addEventListener('click', solveImageUpload);
 
@@ -691,9 +722,11 @@
             // Function to display history or result
             function displayHistory(title, fileName, result) {
                 const historyContainer = document.createElement('div');
-                historyContainer.innerHTML = `<strong>${title}:</strong> ${fileName}<br><pre>${result}</pre>`;
+                historyContainer.innerHTML = `<p>${result}</p>`;
                 document.getElementById('ResultArea').appendChild(historyContainer);
             }
+
+            /* End of Image Upload Response*/
         });
 
     </script>

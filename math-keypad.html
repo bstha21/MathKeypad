@@ -103,7 +103,7 @@
 
         .upload-container {
             text-align: center;
-            margin: 20px;
+            margin: 10px;
         }
 
         #fileInput {
@@ -155,7 +155,21 @@
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 80%;
-            max-width: 700px;
+            max-width: 800px;
+        }
+
+
+        .plot-function {
+            margin: 10px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .keypad.active {
@@ -207,6 +221,12 @@
             border-radius: 20px;
             display: inline-block;
         }
+
+        .result-area,
+        #urlOutput {
+            text-align: left;
+            font-size: 14px;
+        }
     </style>
 </head>
 
@@ -225,11 +245,8 @@
             </div>
         </nav>
         <div class="container sub-main">
-            <div class="header-text">
-                ChattyBot
-            </div>
             <div class="subheader-text">
-                <h3 class="text-center mt-2">One Step Solution For
+                <h3 class="text-center mt-5">One Step Solution For
                     <span class="tampered">Homework Help</span>
                 </h3>
                 <p class="text-center text-muted solution">Get step-by-step solutions for Math subject, exactly when you
@@ -297,15 +314,15 @@
                         <div class="upload-container">
                             <input type="file" id="fileInput" accept="image/png, image/gif, image/jpeg"
                                 style="display:none;">
-                            <p class="text-muted">Drag and Drop, or Ctrl + V to paste</p>
+                            <p class="text-muted">Drag and Drop, or Upload Image</p>
                             <label for="fileInput" class="upload-label">Choose File</label>
                             <div id="dropArea" class="drop-area">
                                 <div id="previewContainer" class="preview-container"></div>
                             </div>
-                            <div id="ResultArea" class="result-area mt-2">
+                            <button id="solve-image" class="btn btn-success">Solve</button>
+                            <div id="ResultArea" class="result-area m-5">
                                 <p id="imageUploadProcessing" style="display:none;">Processing...</p>
                             </div>
-                            <button id="solve-image" class="btn btn-success">Solve</button>
                         </div>
                     </div>
                 </div>
@@ -353,7 +370,7 @@
                             data-bs-placement="top" title="Math Keyboard"></i>
                         <button class="btn btn-outline-dark" id="plotSolveButton">Plot</button>
                     </div>
-                    <div id="plotOutputSection" class="math-function hidden">
+                    <div id="plotOutputSection" class="plot-function hidden">
                         <p>Processing...</p>
                     </div>
                 </div>
@@ -377,19 +394,20 @@
             dropArea.addEventListener('drop', handleDrop);
 
             // Handle Image over event
-            function handleDragOver(event) {
+                function handleDragOver(event) {
                 event.preventDefault();
                 event.stopPropagation();
                 dropArea.classList.add('drag-over');
             }
 
             // Handle Image drop event
-            function handleDrop(event) {
+                function handleDrop(event) {
                 event.preventDefault();
                 event.stopPropagation();
                 dropArea.classList.remove('drag-over');
                 const files = event.dataTransfer.files;
                 handleFiles({ target: { files } });
+                fileInput.files = files; // Set the file input files
             }
 
             // Handle Image file input change
@@ -426,8 +444,7 @@
                     imgWrapper.style.position = 'relative';
                     imgWrapper.style.display = 'inline-block';
                     imgWrapper.appendChild(img);
-                    imgWrapper.appendChild(removeBtn);
-
+                    imgWrapper.appendChild(removeBtn); 
                     previewContainer.appendChild(imgWrapper);
                 }
             }
@@ -505,8 +522,8 @@
                         console.log("API response:", data);
                         // Display the response in the desired format
                         outputSection.innerHTML = `
-                            <p>Your Given Equation: ${equation}</p>
-                            <p> ${data.steps}</p>
+                            Your Given Equation: ${equation}
+                            ${data.steps}
                         `;
                     })
                     .catch(error => {
@@ -694,8 +711,10 @@
             /*end of url link response*/
 
             /* Image Upload Response*/
+
             // Event listener for the upload button
             document.getElementById('solve-image').addEventListener('click', solveImageUpload);
+            
 
             // Async function to handle the image upload and API call
             async function solveImageUpload() {
@@ -707,6 +726,9 @@
 
                 // Display processing text
                 document.getElementById('imageUploadProcessing').style.display = 'inline';
+                document.getElementById('solve-image').disabled = true;
+                document.getElementById('fileInput').disabled = true;
+                document.querySelector('label[for="fileInput"]').style.pointerEvents = 'none'; // Disable the label
 
                 try {
                     const formData = new FormData();
@@ -734,6 +756,10 @@
                 } finally {
                     // Hide processing text after request completes
                     document.getElementById('imageUploadProcessing').style.display = 'none';
+                    document.getElementById('solve-image').disabled = false;
+                    document.getElementById('fileInput').disabled = false;
+                    document.querySelector('label[for="fileInput"]').style.pointerEvents = 'auto'; // Re-enable the label
+                    document.getElementById('fileInput').value = ''; // Clear the input field
                 }
             }
             // Function to display history or result
